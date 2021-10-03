@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>SI.RSAEncryption_LAB1_</RootNamespace>
+    <RootNamespace>SI.RSAEncryption</RootNamespace>
   </PropertyGroup>
 
 </Project>

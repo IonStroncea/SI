@@ -27,12 +27,15 @@ namespace SI.Core.ViewModels
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
-            rsa = EncryptionGenerator.GetRsaEncryption();
 
         }
 
         public void Encrypt()
         {
+            if (rsa == null)
+            {
+                rsa = EncryptionGenerator.GetRsaEncryption();
+            }
             encryptedMessage = rsa.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessageAsString));
             RaisePropertyChanged(nameof(IsDecryptEnabled));

@@ -9,27 +9,27 @@ namespace SI.RSAEncryption
 {
     public class Rsa
     {
-        private BigInteger e;
-        private BigInteger d;
-        private BigInteger n;
+        public BigInteger E { get; private set; } // public key value
+        public BigInteger D { get; private set; } // private key value
+        public BigInteger N { get; private set; }
 
         internal Rsa(BigInteger e, BigInteger d, BigInteger n)
         {
-            this.e = e;
-            this.d = d;
-            this.n = n;
+            this.E = e;
+            this.D = d;
+            this.N = n;
         }
 
         public BigInteger[] Encrypt(string message)
         {
             return message.ToCharArray().ToList()
-                .ConvertAll(x => BigInteger.ModPow(x, e, n)).ToArray();
+                .ConvertAll(x => BigInteger.ModPow(x, E, N)).ToArray();
         }
 
         public string Decrypt(BigInteger[] encryptedText)
         {
             var charArray = encryptedText.ToList()
-                .ConvertAll(x => (char)BigInteger.ModPow(x, d, n)).ToArray();
+                .ConvertAll(x => (char)BigInteger.ModPow(x, D, N)).ToArray();
             return new string(charArray);
         }
     }

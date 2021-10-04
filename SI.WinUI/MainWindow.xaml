@@ -7,6 +7,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SI.WinUI"
         mc:Ignorable="d"
-        Title="LAB1.UI" Height="500" Width="500"
+        Title="LAB1.UI" Height="500" Width="600"
         ResizeMode="CanMinimize">
 </views:MvxWindow>

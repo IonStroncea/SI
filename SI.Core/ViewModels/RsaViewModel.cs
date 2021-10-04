@@ -6,6 +6,7 @@ using SI.RSAEncryption;
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Windows;
 
 namespace SI.Core.ViewModels
 {
@@ -17,6 +18,7 @@ namespace SI.Core.ViewModels
 
         private BigInteger[] encryptedMessage;
 
+        public IMvxCommand GenerateKeyCommand { get; set; }
         public IMvxCommand EncryptCommand { get; set; }
         public IMvxCommand DecryptCommand { get; set; }
         public IMvxCommand ClearCommand { get; set; }
@@ -24,18 +26,28 @@ namespace SI.Core.ViewModels
         public RsaViewModel(IMvxNavigationService mvxNavigationService)
         {
             this.mvxNavigationService = mvxNavigationService;
+            GenerateKeyCommand = new MvxCommand(GenerateKey);
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
 
         }
 
+        public void GenerateKey()
+        {
+            rsa = EncryptionGenerator.GetRsaEncryption();
+            encryptedMessage = null;
+            DecryptedMessage = string.Empty;
+            RaisePropertyChanged(nameof(EncryptedMessageAsString));
+            RaisePropertyChanged(nameof(IsKeyGenerated));
+            RaisePropertyChanged(nameof(IsEncryptEnabled));
+            RaisePropertyChanged(nameof(IsDecryptEnabled));
+            RaisePropertyChanged(nameof(PrivateKey));
+            RaisePropertyChanged(nameof(PublicKey));
+        }
+
         public void Encrypt()
         {
-            if (rsa == null)
-            {
-                rsa = EncryptionGenerator.GetRsaEncryption();
-            }
             encryptedMessage = rsa.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessageAsString));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
@@ -52,9 +64,11 @@ namespace SI.Core.ViewModels
         public void Clear()
         {
             Message = string.Empty;
-            encryptedMessage = new BigInteger[0];
+            encryptedMessage = null;
             DecryptedMessage = string.Empty;
+            RaisePropertyChanged(nameof(Message));
             RaisePropertyChanged(nameof(EncryptedMessageAsString));
+            RaisePropertyChanged(nameof(DecryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
         }
@@ -90,7 +104,11 @@ namespace SI.Core.ViewModels
             }
         }
 
-        public bool IsEncryptEnabled => !string.IsNullOrEmpty(Message);
+        public string PublicKey => IsKeyGenerated ? $"({ rsa.E }, { rsa.N })" : "";
+        public string PrivateKey => IsKeyGenerated ? $"({ rsa.D }, { rsa.N })" : "";
+
+        public bool IsKeyGenerated => rsa != null;
+        public bool IsEncryptEnabled => !string.IsNullOrEmpty(Message) && IsKeyGenerated;
         public bool IsDecryptEnabled => !string.IsNullOrEmpty(EncryptedMessageAsString);
         public bool IsClearEnabled => !string.IsNullOrEmpty(Message) || !string.IsNullOrEmpty(EncryptedMessageAsString) 
             || !string.IsNullOrEmpty(DecryptedMessage);

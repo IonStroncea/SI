@@ -12,12 +12,24 @@
     <Grid>
         <StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <Button mvx:Bi.nd="Command GenerateKeyCommand"
+                        Width="80" Height="30">Generate Key</Button>
                 <Button mvx:Bi.nd="Command EncryptCommand"  IsEnabled="{Binding IsEncryptEnabled}"
-                        Width="80" Height="30">Encrypt</Button>
+                        Width="80" Height="30"  Margin="5 0 0 0">Encrypt</Button>
                 <Button mvx:Bi.nd="Command DecryptCommand" IsEnabled="{Binding IsDecryptEnabled}"
                         Width="80" Height="30" Margin="5 0 0 0">Decrypt</Button>
                 <Button mvx:Bi.nd="Command ClearCommand" IsEnabled="{Binding IsClearEnabled}"
                         Width="80" Height="30" Margin="5 0 0 0">Clear</Button>
+                <StackPanel Margin="10 0 0 0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Private Key: " />
+                        <TextBlock Text="{Binding PrivateKey}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Public Key: " />
+                        <TextBlock Text="{Binding PublicKey}" />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
             
             <TextBlock Text="Message:" FontSize="18"/>

@@ -30,7 +30,6 @@ namespace SI.Core.ViewModels
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
-
         }
 
         public void GenerateKey()

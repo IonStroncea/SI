@@ -23,6 +23,8 @@ namespace SI.Core.ViewModels
 
     public class RsaViewModel : MvxViewModel
     {
+        private RsaEncryption encryption;
+
         private int selectedEncryptionMethodIndex;
         public int SelectedEncryptionMethodIndex
         {
@@ -43,18 +45,17 @@ namespace SI.Core.ViewModels
                 SetProperty(ref encryptionMethods, value);
             }
         }
-        private IEncryption encryption;
 
-        private string encryptedMessage;
+        private BigInteger[] encryptedMessage;
 
-        public IMvxCommand GenerateKeyCommand { get; set; }
+        public IMvxCommand GenerateCommand { get; set; }
         public IMvxCommand EncryptCommand { get; set; }
         public IMvxCommand DecryptCommand { get; set; }
         public IMvxCommand ClearCommand { get; set; }
 
         public RsaViewModel()
         {
-            GenerateKeyCommand = new MvxCommand(GenerateKey);
+            GenerateCommand = new MvxCommand(Generate);
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
@@ -65,7 +66,7 @@ namespace SI.Core.ViewModels
             selectedEncryptionMethodIndex = 0;
         }
 
-        public void GenerateKey()
+        public void Generate()
         {
             encryption = RsaEncryption.Get();
             encryptedMessage = null;
@@ -134,7 +135,7 @@ namespace SI.Core.ViewModels
             get {
                 if (encryptedMessage == null || encryptedMessage.Length == 0) return string.Empty;
                 var strings = encryptedMessage.ToList().Select(x => x.ToString());
-                var result = strings.Aggregate((a, b) => a + b);
+                var result = strings.Aggregate((a, b) => $"{ a } { b }");
                 return result;
             }
         }

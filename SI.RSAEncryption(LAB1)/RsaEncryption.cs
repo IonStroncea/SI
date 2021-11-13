@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SI.RSAEncryption
 {
-    public class RsaEncryption : IEncryption
+    public class RsaEncryption
     {
         public BigInteger E { get; private set; } // public key value
         public BigInteger D { get; private set; } // private key value
@@ -100,25 +100,17 @@ namespace SI.RSAEncryption
             return additionalInfo;
         }
 
-        public string Encrypt(string message)
+        public BigInteger[] Encrypt(string message)
         {
             var encryptedMessage = message.ToCharArray().ToList()
                 .ConvertAll(x => BigInteger.ModPow(x, this.E, this.N)).ToArray();
 
-            var encryptedMessageAsString = string.Join(' ', encryptedMessage);
-
-            return encryptedMessageAsString;
+            return encryptedMessage;
         }
 
-        public string Decrypt(string ecryptedMessage)
+        public string Decrypt(BigInteger[] ecryptedMessage)
         {
-            var charsToDecrypt = ecryptedMessage.Split(" ").ToList().ConvertAll(x =>
-            {
-                BigInteger.TryParse(x, out BigInteger value);
-                return value;
-            });
-
-            var charArray = charsToDecrypt
+            var charArray = ecryptedMessage.ToList()
                 .ConvertAll(x => (char)BigInteger.ModPow(x, this.D, this.N)).ToArray();
 
             return new string(charArray);

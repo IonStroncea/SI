@@ -12,8 +12,6 @@
     <Grid Height="382">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="120" MaxWidth="120" />
@@ -22,34 +20,27 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0">
-            <TextBlock Text="Encryption method:" />
-            <ComboBox ItemsSource="{Binding EncryptionMethods}" 
-                      SelectedIndex="{Binding SelectedEncryptionMethodIndex}" Margin="0 5 0 0"/>
-            <Button mvx:Bi.nd="Command GenerateKeyCommand" Margin="0 5 0 0"
+            <TextBlock Text="RSA" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <Button mvx:Bi.nd="Command GenerateCommand" Margin="0 5 0 0"
                         Height="30">Generate</Button>
-        </StackPanel>
-
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 10 0 0">
-            <TextBlock Text="Additional Info:" FontWeight="Bold"/>
-            <TextBlock Text="{Binding AdditionalInfo}" 
-                       TextWrapping="Wrap"/>
-        </StackPanel>
-        
-        <StackPanel Grid.Row="2" Grid.Column="0">
             <Button mvx:Bi.nd="Command EncryptCommand"  IsEnabled="{Binding IsEncryptEnabled}"
-                    Height="30"  Margin="0 5 0 0">Encrypt</Button>
+                    Height="30"  Margin="0 20 0 0">Encrypt</Button>
             <Button mvx:Bi.nd="Command DecryptCommand" IsEnabled="{Binding IsDecryptEnabled}"
                     Height="30" Margin="0 5 0 0">Decrypt</Button>
             <Button mvx:Bi.nd="Command ClearCommand" IsEnabled="{Binding IsClearEnabled}"
                     Height="30" Margin="0 5 0 0">Clear</Button>
+
+            <TextBlock Text="Additional Info:" FontWeight="Bold" Margin="0 10 0 0"/>
+            <TextBlock Text="{Binding AdditionalInfo}" 
+                       TextWrapping="Wrap"/>
         </StackPanel>
 
-        <StackPanel Grid.RowSpan="3" Grid.Column="1" 
+        <StackPanel Grid.RowSpan="2" Grid.Column="1" 
                     Orientation="Horizontal" Margin="5 -10 5 -10">
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" /> 
         </StackPanel>
         
-        <StackPanel Grid.RowSpan="3" Grid.Column="2">
+        <StackPanel Grid.RowSpan="2" Grid.Column="2">
             <TextBlock Text="Message:" FontSize="18"/>
             <TextBox Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  MinHeight="100" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>

@@ -10,26 +10,36 @@
             mc:Ignorable="d" 
             d:DesignHeight="450" d:DesignWidth="800" Margin="10">
     <Grid>
-        <StackPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="120" MaxWidth="120"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Margin="0 0 10 0">
+            <TextBlock Text="Encryption method:"/>
+            <ComboBox SelectedIndex="0" Margin="0 5 0 0">
+                <ComboBoxItem Content="DSA"/>
+                <ComboBoxItem Content="DES"/>
+                <ComboBoxItem Content="RSA"/>
+            </ComboBox>
+            <Button mvx:Bi.nd="Command GenerateKeyCommand" Margin="0 10 0 0"
+                        Height="30">Generate Key</Button>
+            <TextBlock Text="Additional Info:" Margin="0 20 0 0" FontWeight="Bold"/>
+            <StackPanel>
+                <!-- Update this to be more dynamic -->
+                <TextBlock Text="Private Key: " />
+                <TextBlock Text="{Binding PrivateKey}" />
+                <TextBlock Text="Public Key: " />
+                <TextBlock Text="{Binding PublicKey}" />
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1">
             <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
-                <Button mvx:Bi.nd="Command GenerateKeyCommand"
-                        Width="80" Height="30">Generate Key</Button>
                 <Button mvx:Bi.nd="Command EncryptCommand"  IsEnabled="{Binding IsEncryptEnabled}"
                         Width="80" Height="30"  Margin="5 0 0 0">Encrypt</Button>
                 <Button mvx:Bi.nd="Command DecryptCommand" IsEnabled="{Binding IsDecryptEnabled}"
                         Width="80" Height="30" Margin="5 0 0 0">Decrypt</Button>
                 <Button mvx:Bi.nd="Command ClearCommand" IsEnabled="{Binding IsClearEnabled}"
                         Width="80" Height="30" Margin="5 0 0 0">Clear</Button>
-                <StackPanel Margin="10 0 0 0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Private Key: " />
-                        <TextBlock Text="{Binding PrivateKey}" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Public Key: " />
-                        <TextBlock Text="{Binding PublicKey}" />
-                    </StackPanel>
-                </StackPanel>
             </StackPanel>
             
             <TextBlock Text="Message:" FontSize="18"/>

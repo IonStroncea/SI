@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SI.RSAEncryption.Utils
+namespace SI.Common
 {
     public static class PrimesGenerator
     {

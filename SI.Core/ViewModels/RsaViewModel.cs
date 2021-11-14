@@ -14,37 +14,9 @@ using System.Windows;
 
 namespace SI.Core.ViewModels
 {
-    public enum EncryptionMethod
-    {
-        DSA = 0,
-        DES = 1,
-        RSA = 2,
-    }
-
     public class RsaViewModel : MvxViewModel
     {
         private RsaEncryption encryption;
-
-        private int selectedEncryptionMethodIndex;
-        public int SelectedEncryptionMethodIndex
-        {
-            get => selectedEncryptionMethodIndex;
-            set
-            {
-                SetProperty(ref selectedEncryptionMethodIndex, value);
-                // Add raise property changed
-            }
-        }
-
-        private List<string> encryptionMethods;
-        public List<string> EncryptionMethods
-        {
-            get => encryptionMethods;
-            set
-            {
-                SetProperty(ref encryptionMethods, value);
-            }
-        }
 
         private BigInteger[] encryptedMessage;
 
@@ -59,11 +31,6 @@ namespace SI.Core.ViewModels
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
-
-            EncryptionMethods = new();
-            EncryptionMethods.AddRange(Enum.GetNames(typeof(EncryptionMethod)));
-
-            selectedEncryptionMethodIndex = 0;
         }
 
         public void Generate()

@@ -15,13 +15,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SI.WinUI", "SI.WinUI\SI.Win
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackEnd", "BackEnd", "{D2028146-B2AD-4784-9097-478DAEB3616D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SI.DESEncryption", "SI.DESEncryption\SI.DESEncryption.csproj", "{2C2F555A-E9A9-4DC8-8848-1F8BDB638C07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SI.DESEncryption(LAB3)", "SI.DESEncryption\SI.DESEncryption(LAB3).csproj", "{2C2F555A-E9A9-4DC8-8848-1F8BDB638C07}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SI.Common", "SI.Common\SI.Common.csproj", "{1586FA1C-9AEA-4785-8B7E-8011335155A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Encryptions", "Encryptions", "{E7B06CDE-4410-4A4C-BFFF-0096D58287C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SI.DSAEncryption(LAB2)", "SI.DSAEncryption(LAB2)\SI.DSAEncryption(LAB2).csproj", "{A2281B29-9876-4332-8701-DFFCE09789C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SI.DSAEncryption(LAB2)", "SI.DSAEncryption(LAB2)\SI.DSAEncryption(LAB2).csproj", "{A2281B29-9876-4332-8701-DFFCE09789C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

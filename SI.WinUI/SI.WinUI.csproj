@@ -15,4 +15,10 @@
     <ProjectReference Include="..\SI.Core\SI.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="Views\DesView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+  </ItemGroup>
+
 </Project>

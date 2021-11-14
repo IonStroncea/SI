@@ -47,11 +47,13 @@
             
             <TextBlock Text="Encrypted Message:" FontSize="18" Margin="0 5 0 0"/>
             <TextBox Text="{Binding EncryptedMessageAsString, Mode=OneWay}"  
-                 MinHeight="100" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                 MinHeight="100" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                     Cursor="Arrow" Focusable="False"/>
             
             <TextBlock Text="Decrypted Message:" FontSize="18" Margin="0 5 0 0"/>
             <TextBox Text="{Binding DecryptedMessage}"
-                 MinHeight="100" IsReadOnly="True" TextWrapping="Wrap"  VerticalScrollBarVisibility="Auto"/>
+                 MinHeight="100" IsReadOnly="True" TextWrapping="Wrap"  VerticalScrollBarVisibility="Auto"
+                     Cursor="Arrow" Focusable="False"/>
         </StackPanel>
     </Grid>
 </views:MvxWpfView>

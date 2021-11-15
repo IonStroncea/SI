@@ -47,6 +47,7 @@ namespace SI.Core.ViewModels
 
         public void Encrypt()
         {
+            //EncryptedMessage = Convert.ToString(Convert.ToInt64(encryption.Encrypt(Message), 2), 16);
             EncryptedMessage = encryption.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));

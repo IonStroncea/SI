@@ -5,4 +5,8 @@
 	  <RootNamespace>SI.DESEncryption</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SI.Common\SI.Common.csproj" />
+  </ItemGroup>
+
 </Project>

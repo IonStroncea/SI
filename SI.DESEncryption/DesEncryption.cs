@@ -11,16 +11,70 @@ namespace SI.DESEncryption
 {
     public class DesEncryption
     {
-        public BigInteger MasterKey { private set; get; }
-        public List<BigInteger> RoundKeys { private set; get; }
+        public long MasterKey { private set; get; }
+        public List<long> RoundKeys { private set; get; }
 
 
-        private DesEncryption(BigInteger masterKey)
+        private DesEncryption(string masterKey)
         {
-            this.MasterKey = masterKey;
+            this.MasterKey = this.StringToLongList(masterKey)[0];
             this.RoundKeys = new();
             this.GenerateRoundKeys();
         }
+
+        #region Conversions
+        public static List<byte> LongListToByteList(List<long> valueAsLongList)
+        {
+            var result = new List<byte>();
+
+            for (int i = 0; i < valueAsLongList.Count; i++)
+            {
+                for (int t = 7; t >= 0; t--)
+                {
+                    var b = (byte)(valueAsLongList[i] >> (8 * t));
+                    result.Add(b);
+                }
+            }
+            return result;
+        }
+
+        private List<long> StringToLongList(string s)
+        {
+            var bytes = Encoding.ASCII.GetBytes(s);
+            var paddedBytes = (bytes.Length % 8 == 0) ? new byte[bytes.Length] : new byte[bytes.Length + 8 - (bytes.Length % 8)];
+            
+            Array.Copy(bytes, paddedBytes, bytes.Length);
+            
+            /*
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                paddedBytes[i] = bytes[i];
+            }
+            */
+                
+            var longs = new List<long>();
+            for (int i = 0; i <= paddedBytes.Length - 8; i += 8)
+            {
+                var res = this.ByteArrayToLong(paddedBytes, i);
+                longs.Add(res);
+            }
+
+            return longs;
+        }
+
+        private long ByteArrayToLong(byte[] byteArray, int i)
+        {
+            var l = 0L;
+            if (byteArray.Length - i < 8) throw new Exception();
+            
+            for (int t = 0; t < 8; t++)
+            {
+                l += (long)byteArray[i + t] << (8 * (8 - t - 1));
+            }
+            
+            return l;
+        }
+        #endregion
 
         #region GenerationLogic
         private static string GetRandomKey(int length = 16)
@@ -39,423 +93,169 @@ namespace SI.DESEncryption
 
         public static DesEncryption Get()
         {
-            var generatedKey = GetRandomKey();
-            BigInteger hash = 1125899906842597;//new Random().NextLong(long.MaxValue);
-
-            for (int i = 0; i < generatedKey.Length; i++)
-            {
-                hash = 31 * hash + generatedKey[i];
-            }
-
-            return new(hash);
+            var generatedKey = "52D57458";//GetRandomKey();
+            return new(generatedKey);
         }
-        
-        private string AddLeadingZeroesUntil(string input, int until)
-        {
-            while (input.Length < until)
-            {
-                input = "0" + input;
-            }
 
-            return input;
-        }
 
         private void GenerateRoundKeys()
         {
-            var binaryKey = this.MasterKey.ToBinaryString();
+            var key56 = this.ApplyPermutation(DesConstants.PC1, this.MasterKey);
 
-            binaryKey = this.AddLeadingZeroesUntil(binaryKey, 64);
-    
-            // first permutation
-            var permutedKey = this.Permutation(DesConstants.PC1, binaryKey);
-
-            // Split permuted string in half | 56/2 = 28
-            var keyLeft = permutedKey.Substring(0, 28);
-            var keyRight = permutedKey.Substring(28);
-
-            // Parse binary strings into integers for shifting
-            var keyLeftDecimal = BigInteger.Parse(this.BinToHex(keyLeft), NumberStyles.HexNumber);
-            var keyRightDecimal = BigInteger.Parse(this.BinToHex(keyRight), NumberStyles.HexNumber);
+            var shiftedKey = key56;
+            var key48 = 0L;
 
             for (int i = 0; i < 16; i++)
             {
-                // Perform left shifts according to key shift array
-                keyLeftDecimal = keyLeftDecimal << DesConstants.ShiftBits[i];
-                keyRightDecimal = keyRightDecimal << DesConstants.ShiftBits[i];
-
-                // Merge the two halves
-                var merged = (keyLeftDecimal << 28) + keyRightDecimal;
-
-                // 56-bit merged
-                var mergedString = merged.ToBinaryString();
-
-                mergedString = this.AddLeadingZeroesUntil(mergedString, 56);
-
-                // second key permutation
-                var doublePermutedKey = this.Permutation(DesConstants.PC2, mergedString);
-                var finalKey = BigInteger.Parse(this.BinToHex(doublePermutedKey), NumberStyles.HexNumber);
-
-                this.RoundKeys.Add(finalKey);
-            }
-        }
-        #endregion
-
-        #region Conversions
-        private string UtfToBin(string utf)
-        {
-            var bytes = Encoding.UTF8.GetBytes(utf);
-            var binary = "";
-
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                int value = bytes[i];
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < DesConstants.ShiftBits[i]; j++)
                 {
-                    binary += ((value & 128) == 0 ? 0 : 1);
-                    value <<= 1;
+                    shiftedKey = this.ShiftKeyHalvesLeft(shiftedKey);
                 }
+
+                key48 = this.ApplyPermutation(DesConstants.PC2, shiftedKey);
+                this.RoundKeys.Add(key48);
             }
-
-            return binary;
         }
 
-        private string BinToUtf(string binary)
+        private long ShiftKeyHalvesLeft(long key)
         {
-            var chipherTextBytes = new byte[binary.Length / 8];
+            //Look what the bit values in the heads are, which have to circle around
+            var leftHead = (byte)((key >> 63) & 1) == 1;
+            // 63 - 28 = 35
+            var rightHead = (byte)((key >> 35) & 1) == 1;
+            // Shift the key 1 bit to the left
+            key <<= 1;
+            // Set the tails to 0
+            // Since we cannot set them to 0 directly, we flip all the bits, then set them to 1 with bitwise or operator, then flip again
+            key = ~key;
+            key |= ((long)1 << 36);
+            key |= ((long)1 << 8);
+            key = ~key;
+            // Place the head values on the tail
+            if (leftHead) key |= (long)1 << 36;
+            if (rightHead) key |= (long)1 << 8;
 
-            for (int i = 0; i < chipherTextBytes.Length; i++)
-            {
-                var temp = binary[0..8];
-                var tempByte = Convert.ToByte(temp, 2);
-                chipherTextBytes[i] = tempByte;
-                binary = binary.Substring(8);
-            }
-
-            return Encoding.UTF8.GetString(chipherTextBytes).Trim();
+            return key;
         }
 
-        //  binary to hexadecimal conversion
-        private string BinToHex(string input)
-        {
-            input = Convert.ToString(Convert.ToInt64(input, 2), 16);
-            return input;
-        }
-
-        // hexadecimal to binary conversion
-        private string HexToBin(string input)
-        {
-            input = Convert.ToString(Convert.ToInt64(input, 16), 2);
-            return input;
-        }
         #endregion
 
         #region Algorithm
-        private string Permutation(int[] sequence, string input)
+        private long ApplyPermutation(byte[] sequence, long value)
         {
-            var output = "";
+            var result = 0L;
             
             for (int i = 0; i < sequence.Length; i++)
             {
-                output += input.ElementAt(sequence[i] - 1);
+                result |= ((value >> (63 - sequence[i] + 1)) & 1) << (63 - i);
             }
 
-            return output;
+            return result;
         }
 
-        private string Xor(string a, string b)
+        private long ApplySBoxes(long value)
         {
-            var decimalA = Convert.ToInt64(a, 16);
-            var decimalB = Convert.ToInt64(b, 16);
+            var result = 0L;
 
-            // Xor
-            decimalA = decimalA ^ decimalB;
-
-            a = Convert.ToString(decimalA, 16);
-
-            while (a.Length < b.Length)
+            for (int i = 58, sBoxNum = 0; i >= 16; i -= 6, sBoxNum++)
             {
-                a = "0" + a;
+                var sbox = this.GetSBox(value >> i, sBoxNum);
+                result |= ((long)sbox << (i + 2 * sBoxNum + 2));
             }
 
-            return a;
+            return result;
         }
 
-        private string ShiftLeft(string input, int numBits)
+        private byte GetSBox(long value, int sBoxNum)
         {
-            var n = input.Length * 4;
-            var permutation = new int[n];
-
-            for (int i = 0; i < n - 1; i++)
-            {
-                permutation[i] = i + 2;
-            }
-
-            permutation[n - 1] = 1;
-
-            while (numBits-- > 0)
-            {
-                input = this.Permutation(permutation, input);
-            }
-
-            return input;
+            // look at the rightmost and leftmost bits
+            // do not move the leftmost bit 5 positions, but 4 so it is in the second spot.
+            var row = (((int)value & 32) >> 4) + ((int)value & 1);
+            // Move the 4 center bits on to the right, and despose of the leftmost one.
+            var col = ((int)value >> 1) & 15;
+            return DesConstants.SBoxes[sBoxNum][row, col];
         }
 
-        private string Sbox(string input)
+        private long GetLeftHalf(long value) => (value >> 32) << 32;
+
+        private long GetRightHalf(long value) => (value << 32);
+
+        private long Feistel(long value, bool reverseKeys = false)
         {
-            var output = "";
-            input = this.HexToBin(input);
+            var localKeys = reverseKeys ? 
+                this.RoundKeys.AsEnumerable().Reverse() : this.RoundKeys;
+            var appliedPermutation = this.ApplyPermutation(DesConstants.IP, value);
 
-            for (int i = 0; i < 48; i += 6)
+            foreach (var key in localKeys)
             {
-                var binaryInputSubstring = input[i..(i + 6)];
-
-                var sboxNum = i / 6;
-                var row = Convert.ToInt64($"{ binaryInputSubstring.ElementAt(0) }{ binaryInputSubstring.ElementAt(5) }", 2);
-                var col = Convert.ToInt64(binaryInputSubstring[1..5], 2);
-
-                output += Convert.ToString(DesConstants.Sboxes[sboxNum - 1][row, col], 16);
+                var left = this.GetLeftHalf(appliedPermutation);
+                var right = this.GetRightHalf(appliedPermutation);
+                var newRight = left ^ this.CalculateNewRight(right, key);
+                // we only want the rightmost 32 bits, bitwise & with the rightmost 32 bits,
+                // which happens to be the amount of bits a uint uses. int.MinValue would work too.
+                appliedPermutation = right | ((newRight >> 32) & (long)uint.MaxValue);
             }
-
-            return output;
+            // shift the left and right half
+            var updatedRight = this.GetRightHalf(appliedPermutation);
+            appliedPermutation = (appliedPermutation >> 32) & uint.MaxValue;
+            appliedPermutation |= updatedRight;
+            var result = this.ApplyPermutation(DesConstants.IP1, appliedPermutation);
+            return result;
         }
 
-        private string Round(string input, string key)
+        private long CalculateNewRight(long rightHalf, long key)
         {
-            var left = input[0..8];
-            var copiedRight = input[8..16];
-            var right = copiedRight;
-
-            // Expansion permutation
-            copiedRight = this.Permutation(DesConstants.EP, copiedRight);
-
-            // Xor temp and round key
-            copiedRight = this.Xor(copiedRight, key);
-
-            // Sbox
-            copiedRight = this.Sbox(copiedRight);
-
-            // Straigth Dbox
-            copiedRight = this.Permutation(DesConstants.P, copiedRight);
-
-            left = this.Xor(left, copiedRight);
-
-            // Swapper
-            return right + left;
+            var expandedRightHalf = this.ApplyPermutation(DesConstants.EP, rightHalf);
+            var xor = expandedRightHalf ^ key;
+            var sBoxesApplied = this.ApplySBoxes(xor);
+            var pBoxApplied = this.ApplyPermutation(DesConstants.PBox, sBoxesApplied);
+            return pBoxApplied;
         }
         #endregion
-
 
         public List<KeyValuePair<string, string>> GetAdditionalInfo()
         {
             var additionalInfo = new List<KeyValuePair<string, string>>();
 
-            additionalInfo.Add(new("Master Key", this.MasterKey.ToString("X")));
+            additionalInfo.Add(new("Master Key",
+                this.MasterKey.ToString("X")));
 
             foreach (var (key, index) in this.RoundKeys.Select((key, index) => (key, index)))
             {
-                additionalInfo.Add(new($"Round key { index + 1 }", key.ToString("X")));
+                additionalInfo.Add(new($"Round Key { index + 1 }",
+                    key.ToString("X")));
             }
-
             return additionalInfo;
         }
 
-        private string Feistel(string input, string key)
+        public List<long> Encrypt(string message)
         {
-            // Expand function g
-            var inputPermuted = this.Permutation(DesConstants.EP, input);
-
-            var inputPermutedDecimal = BigInteger.Parse(this.BinToHex(inputPermuted), NumberStyles.HexNumber);
-            var keyDecimal = BigInteger.Parse(this.BinToHex(inputPermuted), NumberStyles.HexNumber);
-
-            // Xor
-            var xor = inputPermutedDecimal ^ keyDecimal;
-
-            var binaryXor = xor.ToBinaryString();
-
-            binaryXor = this.AddLeadingZeroesUntil(binaryXor, 48);
-
-            // split into eight 6-bit string
-            string[] sin = new string[8];
-            for (int i = 0; i < 8; i++)
+            var result = new List<long>();
+            var messageAsLongList = this.StringToLongList(message);
+            foreach (var messageAsLong in messageAsLongList)
             {
-                sin[i] = binaryXor.Substring(0, 6);
-                binaryXor = binaryXor.Substring(6);
+                var feistelValue = this.Feistel(messageAsLong);
+                result.Add(feistelValue);
             }
 
-            // S-box
-            string[] sout = new string[8];
-            for (int i = 0; i < 8; i++)
-            {
-                var row = Convert.ToInt64($"{ sin[i][0] }{ sin[i][5] }", 2);
-                var col = Convert.ToInt64(sin[i][1..5], 2);
-
-                sout[i] = Convert.ToString(DesConstants.Sboxes[i][row, col], 2);
-
-                sout[i] = this.AddLeadingZeroesUntil(sout[i], 4);
-            }
-
-            // merge s-box outputs
-            var merged = "";
-            for (int i = 0; i < 8; i++)
-            {
-                merged = merged + sout[i];
-            }
-
-            var result = this.Permutation(DesConstants.P, merged);
             return result;
-
         }
 
-        public string Encrypt(string plainText)
+        public string Decrypt(List<long> messageAsLongList)
         {
-            var binPlainText = this.UtfToBin(plainText);
+            var resultAsLongList = new List<long>();
 
-            var remainder = binPlainText.Length % 64;
-            if (remainder != 0)
+            foreach (var messageAsLong in messageAsLongList)
             {
-                for (int i = 0; i < (64 - remainder); i++)
-                {
-                    binPlainText = "0" + binPlainText;
-                }
+                var feistelValue = this.Feistel(messageAsLong, true);
+                resultAsLongList.Add(feistelValue);
             }
 
-            // Separate binary plain text into blocks
-            string[] binPlainTextBlocks = new string[binPlainText.Length / 64];
-            int offset = 0;
-            for (int i = 0; i < binPlainTextBlocks.Length; i++)
-            {
-                binPlainTextBlocks[i] = binPlainText[offset..(offset + 64)];
-                offset += 64;
-            }
+            var resultAsByteList = DesEncryption.LongListToByteList(resultAsLongList);
 
-            string[] binCipherTextBlocks = new string[binPlainText.Length / 64];
-
-            // Encrypt the blocks
-            for (int i = 0; i < binCipherTextBlocks.Length; i++)
-            {
-                binCipherTextBlocks[i] = EncryptBlock(binPlainTextBlocks[i]);
-            }
-
-            var binChipherText = "";
-            for (int i = 0; i < binCipherTextBlocks.Length; i++)
-            {
-                binChipherText += binCipherTextBlocks[i];
-            }
-
-            return binChipherText;
+            return Encoding.ASCII.GetString(resultAsByteList.ToArray());
         }
 
-        private string EncryptBlock(string plainTextBlock)
-        {
-            if (plainTextBlock.Length != 64) throw new("Input block is not 64 bits!");
 
-            // Initial permutation
-            var permutedBlock = this.Permutation(DesConstants.IP, plainTextBlock);
-
-            var left = permutedBlock.Substring(0, 32);
-            var right = permutedBlock.Substring(32);
-
-            for (int i = 0; i < 16; i++)
-            {
-                var currentKey = RoundKeys[i].ToBinaryString();
-
-                currentKey = this.AddLeadingZeroesUntil(currentKey, 48);
-
-                // Get 32-bit result from f
-                var fResult = this.Feistel(right, currentKey);
-
-                // Xor
-                var f = BigInteger.Parse(this.BinToHex(fResult), NumberStyles.HexNumber);
-                var cmL = BigInteger.Parse(this.BinToHex(left), NumberStyles.HexNumber);
-
-                var newRight = cmL ^ f;
-                var newRightBinary = newRight.ToBinaryString();
-
-                newRightBinary = this.AddLeadingZeroesUntil(newRightBinary, 32);
-
-                left = right;
-                right = newRightBinary;
-            }
-
-            var lastPermutation = this.Permutation(DesConstants.IP1, right + left);
-
-            return lastPermutation;
-        }
-
-        public string Decrypt(string plainBinText)
-        {
-            var binPlainText = plainBinText;
-
-            var remainder = binPlainText.Length % 64;
-            if (remainder != 0)
-            {
-                for (int i = 0; i < (64 - remainder); i++)
-                {
-                    binPlainText = "0" + binPlainText;
-                }
-            }
-
-            // Separate binary plain text into blocks
-            string[] binPlainTextBlocks = new string[binPlainText.Length / 64];
-            int offset = 0;
-            for (int i = 0; i < binPlainTextBlocks.Length; i++)
-            {
-                binPlainTextBlocks[i] = binPlainText[offset..(offset + 64)];
-                offset += 64;
-            }
-
-            string[] binCipherTextBlocks = new string[binPlainText.Length / 64];
-
-            // Encrypt the blocks
-            for (int i = 0; i < binCipherTextBlocks.Length; i++)
-            {
-                binCipherTextBlocks[i] = DecryptBlock(binPlainTextBlocks[i]);
-            }
-
-            var binChipherText = "";
-            for (int i = 0; i < binCipherTextBlocks.Length; i++)
-            {
-                binChipherText += binCipherTextBlocks[i];
-            }
-
-            return this.BinToUtf(binChipherText);
-        }
-
-        private string DecryptBlock(string plainTextBlock)
-        {
-            if (plainTextBlock.Length != 64) throw new("Input block is not 64 bits!");
-
-            // Initial permutation
-            var permutedBlock = this.Permutation(DesConstants.IP, plainTextBlock);
-
-            var left = permutedBlock.Substring(0, 32);
-            var right = permutedBlock.Substring(32);
-
-            for (int i = 15; i >= 0; i--)
-            {
-                var currentKey = RoundKeys[i].ToBinaryString();
-
-                currentKey = this.AddLeadingZeroesUntil(currentKey, 48);
-
-                // Get 32-bit result from f
-                var fResult = this.Feistel(right, currentKey);
-
-                // Xor
-                var f = BigInteger.Parse(this.BinToHex(fResult), NumberStyles.HexNumber);
-                var cmL = BigInteger.Parse(this.BinToHex(left), NumberStyles.HexNumber);
-
-                var newRight = cmL ^ f;
-                var newRightBinary = newRight.ToBinaryString();
-
-                newRightBinary = this.AddLeadingZeroesUntil(newRightBinary, 32);
-
-                left = right;
-                right = newRightBinary;
-            }
-
-            var lastPermutation = this.Permutation(DesConstants.IP1, right + left);
-
-            return lastPermutation;
-        }
     }
 }

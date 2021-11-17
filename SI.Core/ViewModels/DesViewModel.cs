@@ -17,6 +17,8 @@ namespace SI.Core.ViewModels
 {
     public class DesViewModel : MvxViewModel
     {
+        List<long> encryptedMessage;
+
         private DesEncryption encryption;
 
         public IMvxCommand GenerateCommand { get; set; }
@@ -30,25 +32,27 @@ namespace SI.Core.ViewModels
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
+
+            encryptedMessage = new();
         }
 
         public void Generate()
         {
             encryption = DesEncryption.Get();
-            encryptedMessage = string.Empty;
+            encryptedMessage.Clear();
             DecryptedMessage = string.Empty;
-            RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsKeyGenerated));
+            RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsEncryptEnabled));
-            RaisePropertyChanged(nameof(IsDecryptEnabled));
+            RaisePropertyChanged(nameof(DecryptedMessage));
+            RaisePropertyChanged(nameof(IsClearEnabled));
 
-            SetAdditionalInfo();
+            this.SetAdditionalInfo();
         }
 
         public void Encrypt()
         {
-            //EncryptedMessage = Convert.ToString(Convert.ToInt64(encryption.Encrypt(Message), 2), 16);
-            EncryptedMessage = encryption.Encrypt(Message);
+            encryptedMessage = encryption.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
@@ -64,9 +68,8 @@ namespace SI.Core.ViewModels
         public void Clear()
         {
             Message = string.Empty;
-            EncryptedMessage = string.Empty;
+            encryptedMessage.Clear();
             DecryptedMessage = string.Empty;
-            RaisePropertyChanged(nameof(Message));
             RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(DecryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
@@ -97,13 +100,21 @@ namespace SI.Core.ViewModels
             }
         }
 
-        public string encryptedMessage;
         public string EncryptedMessage
         {
-            get => encryptedMessage;
-            set
-            {
-                SetProperty(ref encryptedMessage, value);
+            get 
+            { 
+                if (encryptedMessage.Count == 0) return string.Empty;
+
+                var result = "";
+                var byteList = DesEncryption.LongListToByteList(encryptedMessage);
+
+                byteList.ForEach((value) =>
+                {
+                    result += value.ToString("X").PadLeft(2, '0');
+                });
+
+                return result;
             }
         }
 

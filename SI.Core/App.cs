@@ -8,7 +8,7 @@ namespace SI.Core
         public override void Initialize()
         {
             /* Update View to change the encryption */
-            //RegisterAppStart<RsaViewModel>();
+            //RegisterAppStart<DsaViewModel>();
             RegisterAppStart<DesViewModel>();
             //RegisterAppStart<RsaViewModel>();
         }

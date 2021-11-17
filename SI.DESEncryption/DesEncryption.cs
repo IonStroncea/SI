@@ -40,7 +40,7 @@ namespace SI.DESEncryption
 
         private List<long> StringToLongList(string s)
         {
-            var bytes = Encoding.ASCII.GetBytes(s);
+            var bytes = Encoding.UTF8.GetBytes(s);
             var paddedBytes = (bytes.Length % 8 == 0) ? new byte[bytes.Length] : new byte[bytes.Length + 8 - (bytes.Length % 8)];
             
             Array.Copy(bytes, paddedBytes, bytes.Length);
@@ -252,7 +252,7 @@ namespace SI.DESEncryption
 
             var resultAsByteList = DesEncryption.LongListToByteList(resultAsLongList);
 
-            return Encoding.ASCII.GetString(resultAsByteList.ToArray());
+            return Encoding.UTF8.GetString(resultAsByteList.ToArray());
         }
 
 

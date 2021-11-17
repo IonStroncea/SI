@@ -4,7 +4,7 @@ To change the encryption method, uncomment SI.Core - App.cs with the desired met
 public override void Initialize()
 {
     /* Update View to change the encryption */
-    //RegisterAppStart<RsaViewModel>();
+    //RegisterAppStart<DsaViewModel>();
     RegisterAppStart<DesViewModel>();
     //RegisterAppStart<RsaViewModel>();
 }

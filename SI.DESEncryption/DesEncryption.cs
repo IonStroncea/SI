@@ -93,10 +93,9 @@ namespace SI.DESEncryption
 
         public static DesEncryption Get()
         {
-            var generatedKey = "52D57458";//GetRandomKey();
+            var generatedKey = GetRandomKey(); //"52D57458";
             return new(generatedKey);
         }
-
 
         private void GenerateRoundKeys()
         {

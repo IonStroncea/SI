@@ -44,13 +44,6 @@ namespace SI.DESEncryption
             var paddedBytes = (bytes.Length % 8 == 0) ? new byte[bytes.Length] : new byte[bytes.Length + 8 - (bytes.Length % 8)];
             
             Array.Copy(bytes, paddedBytes, bytes.Length);
-            
-            /*
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                paddedBytes[i] = bytes[i];
-            }
-            */
                 
             var longs = new List<long>();
             for (int i = 0; i <= paddedBytes.Length - 8; i += 8)

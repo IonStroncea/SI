@@ -3,6 +3,7 @@ using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
 using SI.Common;
+using SI.DESEncryption;
 using SI.RSAEncryption;
 using System;
 using System.Collections.Generic;
@@ -14,42 +15,45 @@ using System.Windows;
 
 namespace SI.Core.ViewModels
 {
-    public class RsaViewModel : MvxViewModel
+    public class DesViewModel : MvxViewModel
     {
-        private RsaEncryption encryption;
+        List<long> encryptedMessage;
 
-        private BigInteger[] encryptedMessage;
+        private DesEncryption encryption;
 
         public IMvxCommand GenerateCommand { get; set; }
         public IMvxCommand EncryptCommand { get; set; }
         public IMvxCommand DecryptCommand { get; set; }
         public IMvxCommand ClearCommand { get; set; }
 
-        public RsaViewModel()
+        public DesViewModel()
         {
             GenerateCommand = new MvxCommand(Generate);
             EncryptCommand = new MvxCommand(Encrypt);
             DecryptCommand = new MvxCommand(Decrypt);
             ClearCommand = new MvxCommand(Clear);
+
+            encryptedMessage = new();
         }
 
         public void Generate()
         {
-            encryption = RsaEncryption.Get();
-            encryptedMessage = null;
+            encryption = DesEncryption.Get();
+            encryptedMessage.Clear();
             DecryptedMessage = string.Empty;
-            RaisePropertyChanged(nameof(EncryptedMessageAsString));
             RaisePropertyChanged(nameof(IsKeyGenerated));
+            RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsEncryptEnabled));
-            RaisePropertyChanged(nameof(IsDecryptEnabled));
+            RaisePropertyChanged(nameof(DecryptedMessage));
+            RaisePropertyChanged(nameof(IsClearEnabled));
 
-            SetAdditionalInfo();
+            this.SetAdditionalInfo();
         }
 
         public void Encrypt()
         {
             encryptedMessage = encryption.Encrypt(Message);
-            RaisePropertyChanged(nameof(EncryptedMessageAsString));
+            RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
             DecryptedMessage = string.Empty;
@@ -64,10 +68,9 @@ namespace SI.Core.ViewModels
         public void Clear()
         {
             Message = string.Empty;
-            encryptedMessage = null;
+            encryptedMessage.Clear();
             DecryptedMessage = string.Empty;
-            RaisePropertyChanged(nameof(Message));
-            RaisePropertyChanged(nameof(EncryptedMessageAsString));
+            RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(DecryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
@@ -97,12 +100,20 @@ namespace SI.Core.ViewModels
             }
         }
 
-        public string EncryptedMessageAsString
+        public string EncryptedMessage
         {
-            get {
-                if (encryptedMessage == null || encryptedMessage.Length == 0) return string.Empty;
-                var strings = encryptedMessage.ToList().Select(x => x.ToString());
-                var result = strings.Aggregate((a, b) => $"{ a } { b }");
+            get 
+            { 
+                if (encryptedMessage.Count == 0) return string.Empty;
+
+                var result = "";
+                var byteList = DesEncryption.LongListToByteList(encryptedMessage);
+
+                byteList.ForEach((value) =>
+                {
+                    result += value.ToString("X").PadLeft(2, '0');
+                });
+
                 return result;
             }
         }
@@ -129,8 +140,8 @@ namespace SI.Core.ViewModels
 
         public bool IsKeyGenerated => encryption != null;
         public bool IsEncryptEnabled => !string.IsNullOrEmpty(Message) && IsKeyGenerated;
-        public bool IsDecryptEnabled => !string.IsNullOrEmpty(EncryptedMessageAsString);
-        public bool IsClearEnabled => !string.IsNullOrEmpty(Message) || !string.IsNullOrEmpty(EncryptedMessageAsString) 
+        public bool IsDecryptEnabled => !string.IsNullOrEmpty(EncryptedMessage);
+        public bool IsClearEnabled => !string.IsNullOrEmpty(Message) || !string.IsNullOrEmpty(EncryptedMessage) 
             || !string.IsNullOrEmpty(DecryptedMessage);
     }
 }

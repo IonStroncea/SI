@@ -1,16 +1,10 @@
 ﻿using MvvmCross;
 using MvvmCross.Commands;
-using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
-using SI.Common;
 using SI.RSAEncryption;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Windows;
 
 namespace SI.Core.ViewModels
 {
@@ -48,7 +42,7 @@ namespace SI.Core.ViewModels
 
         public void Encrypt()
         {
-            encryptedMessage = encryption.Encrypt(Message);
+            //encryptedMessage = encryption.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessageAsString));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
@@ -57,7 +51,7 @@ namespace SI.Core.ViewModels
 
         public void Decrypt()
         {
-            DecryptedMessage = encryption.Decrypt(encryptedMessage);
+            //DecryptedMessage = encryption.Decrypt(encryptedMessage);
             RaisePropertyChanged(nameof(IsClearEnabled));
         }
 

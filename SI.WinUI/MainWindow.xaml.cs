@@ -1,4 +1,7 @@
-﻿using MvvmCross.Platforms.Wpf.Views;
+﻿using Microsoft.Win32;
+using MvvmCross.Platforms.Wpf.Views;
+using SI.Core.ViewModels;
+using System;
 
 namespace SI.WinUI
 {

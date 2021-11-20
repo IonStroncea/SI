@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Views\DsaView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
     <Page Update="Views\DesView.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>

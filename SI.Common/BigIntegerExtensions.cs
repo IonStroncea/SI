@@ -115,5 +115,17 @@ namespace SI.Common
 
             return base8.ToString();
         }
+
+        public static int BitCount(this BigInteger bigint)
+        {
+            var count = 0;
+            while (bigint != 0)
+            {
+                count++;
+                bigint &= (bigint - 1); //walking through all the bits which are set to one
+            }
+
+            return count;
+        }
     }
 }

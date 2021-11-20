@@ -8,16 +8,16 @@ namespace SI.DSAEncryption
 {
     public class Signature
     {
-        public BigInteger R { get; set; }
-        public BigInteger S { get; set; }
+        public JavaBigInteger R { get; set; }
+        public JavaBigInteger S { get; set; }
 
-        public Signature(BigInteger r, BigInteger s)
+        public Signature(JavaBigInteger r, JavaBigInteger s)
         {
             this.R = r;
             this.S = s;
         }
 
-        internal void Deconstruct(out BigInteger r, out BigInteger s)
+        internal void Deconstruct(out JavaBigInteger r, out JavaBigInteger s)
         {
             r = this.R;
             s = this.S;

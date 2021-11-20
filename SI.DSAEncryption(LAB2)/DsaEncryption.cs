@@ -10,13 +10,13 @@ namespace SI.DSAEncryption
 {
     public class DsaEncryption
     {
-        public BigInteger Q { get; private set; } 
-        public BigInteger P { get; private set; }
-        public BigInteger G { get; private set; }
-        public BigInteger X { get; private set; }
-        public BigInteger Y { get; private set; }
+        public JavaBigInteger Q { get; private set; } 
+        public JavaBigInteger P { get; private set; }
+        public JavaBigInteger G { get; private set; }
+        public JavaBigInteger X { get; private set; }
+        public JavaBigInteger Y { get; private set; }
 
-        private DsaEncryption(BigInteger q, BigInteger p, BigInteger g, BigInteger x, BigInteger y)
+        private DsaEncryption(JavaBigInteger q, JavaBigInteger p, JavaBigInteger g, JavaBigInteger x, JavaBigInteger y)
         {
             this.Q = q;
             this.P = p;
@@ -34,7 +34,7 @@ namespace SI.DSAEncryption
             random = new Random();
 
             //Alegerea unui numar prim q, care este numit divizor prim
-            var q = BigInteger.genPseudoPrime(80, confidence, random);
+            var q = JavaBigInteger.GenPseudoPrime(80, confidence, random);
 
             //Alegerea unui alt numar prin p, astfel incat p-1 mod q = 0. p mai este numit modulul prim
             var p = GetP(q);
@@ -46,47 +46,47 @@ namespace SI.DSAEncryption
             var x = GetX(p, q);
 
             //Calcularea lui y ca g**x mod p.
-            var y = g.modPow(x, p);
+            var y = g.ModPow(x, p);
 
             return new DsaEncryption(q, p, g, x, y);
         }
 
-        private static BigInteger GetP(BigInteger q)
+        private static JavaBigInteger GetP(JavaBigInteger q)
         {
             var bitCount = 256;
-            BigInteger result;
-            BigInteger resultReduced;
+            JavaBigInteger result;
+            JavaBigInteger resultReduced;
             do
             {
-                result = BigInteger.genPseudoPrime(bitCount, confidence, random);
+                result = JavaBigInteger.GenPseudoPrime(bitCount, confidence, random);
                 resultReduced = result - 1;
                 result -= (resultReduced % q);
-            } while (!result.isProbablePrime(confidence));
+            } while (!result.IsProbablePrime(confidence));
 
             return result;
         }
 
-        private static BigInteger GetG(BigInteger p, BigInteger q)
+        private static JavaBigInteger GetG(JavaBigInteger p, JavaBigInteger q)
         {
-            BigInteger result;
+            JavaBigInteger result;
             var pReduced = p - 1;
             var qReduced = pReduced / q;
 
             do
             {
-                result = BigInteger.genPseudoPrime(pReduced.bitCount(), confidence, random);
+                result = JavaBigInteger.GenPseudoPrime(pReduced.BitCount, confidence, random);
             } while (result >= pReduced && result <= 1);
 
-            return result.modPow(qReduced, p);
+            return result.ModPow(qReduced, p);
         }
 
-        private static BigInteger GetX(BigInteger p, BigInteger q)
+        private static JavaBigInteger GetX(JavaBigInteger p, JavaBigInteger q)
         {
-            BigInteger result;
+            JavaBigInteger result;
 
             do
             {
-                result = BigInteger.genPseudoPrime(q.bitCount(), confidence, random);
+                result = JavaBigInteger.GenPseudoPrime(q.BitCount, confidence, random);
             } while (result <= 0 && result >= q);
 
             return result;
@@ -94,26 +94,26 @@ namespace SI.DSAEncryption
         #endregion
 
         #region Algorithm
-        private BigInteger GetK()
+        private JavaBigInteger GetK()
         {
-            BigInteger result;
+            JavaBigInteger result;
 
             do
             {
-                result = BigInteger.genPseudoPrime(this.Q.bitCount(), confidence, random);
+                result = JavaBigInteger.GenPseudoPrime(this.Q.BitCount, confidence, random);
 
             } while (result >= this.Q && result <= 0);
 
             return result;
         }
 
-        private BigInteger GetR(BigInteger k) => this.G.modPow(k, this.P) % this.Q;
+        private JavaBigInteger GetR(JavaBigInteger k) => this.G.ModPow(k, this.P) % this.Q;
 
-        private BigInteger GetHash(byte[] messageData)
+        private JavaBigInteger GetHash(byte[] messageData)
         {
             var hash = SHA1.Create().ComputeHash(messageData);
 
-            return new BigInteger(hash);
+            return new JavaBigInteger(hash);
         }
         #endregion
 
@@ -138,7 +138,7 @@ namespace SI.DSAEncryption
             var hash = this.GetHash(messageData);
             var k = this.GetK();
             var r = this.GetR(k);
-            var s = k.modInverse(this.Q) * (hash + this.X * r) % this.Q;
+            var s = k.ModInverse(this.Q) * (hash + this.X * r) % this.Q;
             return new Signature(r, s);
         }
 
@@ -157,11 +157,11 @@ namespace SI.DSAEncryption
             }
 
             var hash = this.GetHash(messageData);
-            var w = s.modInverse(this.Q);
+            var w = s.ModInverse(this.Q);
             var u1 = (hash * w) % this.Q;
             var u2 = (r * w) % this.Q;
 
-            var v = ((this.G.modPow(u1, this.P) * this.Y.modPow(u2, this.P)) % this.P) % this.Q;
+            var v = ((this.G.ModPow(u1, this.P) * this.Y.ModPow(u2, this.P)) % this.P) % this.Q;
 
             return v == r;        
         }

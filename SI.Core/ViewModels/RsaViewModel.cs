@@ -42,7 +42,7 @@ namespace SI.Core.ViewModels
 
         public void Encrypt()
         {
-            //encryptedMessage = encryption.Encrypt(Message);
+            encryptedMessage = encryption.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessageAsString));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
@@ -51,7 +51,7 @@ namespace SI.Core.ViewModels
 
         public void Decrypt()
         {
-            //DecryptedMessage = encryption.Decrypt(encryptedMessage);
+            DecryptedMessage = encryption.Decrypt(encryptedMessage);
             RaisePropertyChanged(nameof(IsClearEnabled));
         }
 

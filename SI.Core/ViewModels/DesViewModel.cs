@@ -18,7 +18,7 @@ namespace SI.Core.ViewModels
     {
         List<long> encryptedMessage;
 
-        private DesEncryption encryption;
+        private DesEncryption des;
 
         public IMvxCommand GenerateCommand { get; set; }
         public IMvxCommand EncryptCommand { get; set; }
@@ -37,7 +37,7 @@ namespace SI.Core.ViewModels
 
         public void Generate()
         {
-            encryption = DesEncryption.Get();
+            des = DesEncryption.Get();
             encryptedMessage.Clear();
             DecryptedMessage = string.Empty;
             RaisePropertyChanged(nameof(IsKeyGenerated));
@@ -51,7 +51,7 @@ namespace SI.Core.ViewModels
 
         public void Encrypt()
         {
-            encryptedMessage = encryption.Encrypt(Message);
+            encryptedMessage = des.Encrypt(Message);
             RaisePropertyChanged(nameof(EncryptedMessage));
             RaisePropertyChanged(nameof(IsDecryptEnabled));
             RaisePropertyChanged(nameof(IsClearEnabled));
@@ -60,7 +60,7 @@ namespace SI.Core.ViewModels
 
         public void Decrypt()
         {
-            DecryptedMessage = encryption.Decrypt(encryptedMessage);
+            DecryptedMessage = des.Decrypt(encryptedMessage);
             RaisePropertyChanged(nameof(IsClearEnabled));
         }
 
@@ -79,7 +79,7 @@ namespace SI.Core.ViewModels
         {
             StringBuilder sb = new();
 
-            encryption.GetAdditionalInfo().ForEach(x =>
+            des.GetAdditionalInfo().ForEach(x =>
             {
                 sb.AppendLine($"{ x.Key }:");
                 sb.AppendLine(x.Value);
@@ -137,7 +137,7 @@ namespace SI.Core.ViewModels
             }
         }
 
-        public bool IsKeyGenerated => encryption != null;
+        public bool IsKeyGenerated => des != null;
         public bool IsEncryptEnabled => !string.IsNullOrEmpty(Message) && IsKeyGenerated;
         public bool IsDecryptEnabled => !string.IsNullOrEmpty(EncryptedMessage);
         public bool IsClearEnabled => !string.IsNullOrEmpty(Message) || !string.IsNullOrEmpty(EncryptedMessage) 

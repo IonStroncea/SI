@@ -242,11 +242,9 @@ namespace SI.DESEncryption
                 resultAsLongList.Add(feistelValue);
             }
 
-            var resultAsByteList = DesEncryption.LongListToByteList(resultAsLongList);
+            var resultAsByteList = LongListToByteList(resultAsLongList);
 
             return Encoding.UTF8.GetString(resultAsByteList.ToArray());
         }
-
-
     }
 }

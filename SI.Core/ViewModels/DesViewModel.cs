@@ -14,7 +14,7 @@ using System.Windows;
 
 namespace SI.Core.ViewModels
 {
-    public class DesViewModel : MvxViewModel
+    public class DesViewModel : BaseMethodViewModel
     {
         List<long> encryptedMessage;
 
@@ -25,7 +25,7 @@ namespace SI.Core.ViewModels
         public IMvxCommand DecryptCommand { get; set; }
         public IMvxCommand ClearCommand { get; set; }
 
-        public DesViewModel()
+        public DesViewModel(IMvxNavigationService mvxNavigationService) : base(mvxNavigationService)
         {
             GenerateCommand = new MvxCommand(Generate);
             EncryptCommand = new MvxCommand(Encrypt);

@@ -131,15 +131,15 @@ namespace SI.DSAEncryption
             return additionalInfo;
         }
 
-        public Signature SignData(string message)
-        {
-            var messageData = Encoding.ASCII.GetBytes(message);
-            var hash = this.GetHash(messageData);
-            var k = this.GetK();
-            var r = this.GetR(k);
-            var s = k.ModInverse(this.Q) * (hash + this.X * r) % this.Q;
-            return new Signature(r, s);
-        }
+public Signature SignData(string message)
+{
+    var messageData = Encoding.ASCII.GetBytes(message);
+    var hash = this.GetHash(messageData);
+    var k = this.GetK();
+    var r = this.GetR(k);
+    var s = k.ModInverse(this.Q) * (hash + this.X * r) % this.Q;
+    return new Signature(r, s);
+}
 
         public bool Verify(string message, Signature signature)
         {
@@ -159,7 +159,6 @@ namespace SI.DSAEncryption
             var w = s.ModInverse(this.Q);
             var u1 = (hash * w) % this.Q;
             var u2 = (r * w) % this.Q;
-
             var v = ((this.G.ModPow(u1, this.P) * this.Y.ModPow(u2, this.P)) % this.P) % this.Q;
 
             return v == r;        

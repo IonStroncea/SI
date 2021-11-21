@@ -1,4 +1,5 @@
 ﻿using MvvmCross.Commands;
+using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
 using SI.DSAEncryption;
 using System;
@@ -15,7 +16,7 @@ namespace SI.Core.ViewModels
         Invalid
     }
 
-    public class DsaViewModel : MvxViewModel
+    public class DsaViewModel : BaseMethodViewModel
     {
         private DsaEncryption dsa;
         Signature signature;
@@ -24,7 +25,7 @@ namespace SI.Core.ViewModels
         public IMvxCommand SignCommand { get; set; }
         public IMvxCommand VerifyCommand { get; set; }
 
-        public DsaViewModel()
+        public DsaViewModel(IMvxNavigationService mvxNavigationService) : base(mvxNavigationService)
         {
             GenerateCommand = new MvxCommand(Generate);
             SignCommand = new MvxCommand(Sign);

@@ -1,5 +1,6 @@
 ﻿using MvvmCross;
 using MvvmCross.Commands;
+using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
 using SI.RSAEncryption;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace SI.Core.ViewModels
 {
-    public class RsaViewModel : MvxViewModel
+    public class RsaViewModel : BaseMethodViewModel
     {
         private RsaEncryption encryption;
 
@@ -19,7 +20,7 @@ namespace SI.Core.ViewModels
         public IMvxCommand DecryptCommand { get; set; }
         public IMvxCommand ClearCommand { get; set; }
 
-        public RsaViewModel()
+        public RsaViewModel(IMvxNavigationService mvxNavigationService) : base(mvxNavigationService)
         {
             GenerateCommand = new MvxCommand(Generate);
             EncryptCommand = new MvxCommand(Encrypt);

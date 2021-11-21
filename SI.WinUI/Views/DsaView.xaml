@@ -20,6 +20,8 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0">
+            <Button mvx:Bi.nd="Command MainMenuCommand"
+                    Height="20"  Margin="0 0 0 10">Main Menu</Button>
             <TextBlock Text="DSA" FontWeight="Bold" HorizontalAlignment="Center"/>
             <Button mvx:Bi.nd="Command GenerateCommand" Margin="0 5 0 0"
                         Height="30">Generate</Button>

@@ -5,8 +5,4 @@
     <RootNamespace>SI.RSAEncryption</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SI.Common\SI.Common.csproj" />
-  </ItemGroup>
-
 </Project>

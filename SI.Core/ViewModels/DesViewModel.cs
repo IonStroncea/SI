@@ -2,7 +2,6 @@
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
-using SI.Common;
 using SI.DESEncryption;
 using SI.RSAEncryption;
 using System;
